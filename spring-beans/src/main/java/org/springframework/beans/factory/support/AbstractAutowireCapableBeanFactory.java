@@ -476,6 +476,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	/**
 	 * Central method of this class: creates a bean instance,
 	 * populates the bean instance, applies post-processors, etc.
+	 * 这个方法的作用是创建bean实例，并对bean实例进行初始化，包括对bean实例进行属性注入，以及对bean实例进行后置处理。
 	 * @see #doCreateBean
 	 */
 	@Override
@@ -505,6 +506,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// 这个不一定所有的bean都会做处理。
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -557,6 +559,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		if (instanceWrapper == null) {
+			// 这里的创建实例方式有三种，分别是：第一种是通过构造函数创建实例，第二种是通过工厂方法创建实例，第三种是通过自动注入创建实例。
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		Object bean = instanceWrapper.getWrappedInstance();
@@ -593,6 +596,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 把 EarlyBeanReference（提前暴露的放到3级缓存）
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
+
+		// ----下面是初始化过程----
 
 		// Initialize the bean instance.
 		Object exposedObject = bean;
@@ -1105,8 +1110,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
+					// 这里是实例化的前置处理器的前置处理
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					if (bean != null) {
+						// 这里是实例化的前置处理器的后置处理
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
 				}
@@ -1141,6 +1148,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	/**
 	 * Create a new instance for the specified bean, using an appropriate instantiation strategy:
 	 * factory method, constructor autowiring, or simple instantiation.
+	 *
+	 * 这里的实例化策略有三种：第一种是通过工厂方法实例化，第二种是通过构造函数实例化，第三种是直接实例化。
+	 *
 	 * @param beanName the name of the bean
 	 * @param mbd the bean definition for the bean
 	 * @param args explicit arguments to use for constructor or factory method invocation
