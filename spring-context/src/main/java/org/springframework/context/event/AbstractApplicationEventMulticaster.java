@@ -195,7 +195,7 @@ public abstract class AbstractApplicationEventMulticaster
 		CachedListenerRetriever newRetriever = null;
 
 		// Quick check for existing entry on ConcurrentHashMap
-		CachedListenerRetriever existingRetriever = this.retrieverCache.get(cacheKey);
+		CachedListenerRetriever existingRetriever = this.retrieverCache.get(cacheKey);// 先看缓存有没有。
 		if (existingRetriever == null) {
 			// Caching a new ListenerRetriever if possible
 			if (this.beanClassLoader == null ||
@@ -209,6 +209,7 @@ public abstract class AbstractApplicationEventMulticaster
 			}
 		}
 
+		// 这个写法严谨。
 		if (existingRetriever != null) {
 			Collection<ApplicationListener<?>> result = existingRetriever.getApplicationListeners();
 			if (result != null) {
@@ -292,6 +293,7 @@ public abstract class AbstractApplicationEventMulticaster
 			}
 		}
 
+		// 排序监听器列表。
 		AnnotationAwareOrderComparator.sort(allListeners);
 		if (retriever != null) {
 			if (filteredListenerBeans.isEmpty()) {
