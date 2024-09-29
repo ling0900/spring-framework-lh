@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
  * <p>An invocation is a joinpoint and can be intercepted by an
  * interceptor.
  *
+ * <p> 表示程序中的一个调用，它可以被拦截器拦截。
  * @author Rod Johnson
  */
 public interface Invocation extends Joinpoint {

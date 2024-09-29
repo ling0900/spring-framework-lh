@@ -36,6 +36,12 @@ import javax.annotation.Nullable;
  * method, a constructor, a field), i.e. the static part of the
  * joinpoint. It is passed to the interceptors that are installed on
  * the static joinpoint.
+ * <p> 在AOP中，连接点是程序中的一个位置，表示发生的事件。例如，方法调用是一个连接点。给定连接点的静态部分可以通过getStaticPart()方法进行通用的检索。
+ * 在拦截框架的上下文中，运行时连接点是对可访问对象（方法、构造函数、字段）的访问的具体化，即连接点的静态部分。它被传递给安装在静态连接点上的拦截器。
+ * Joinpoint接口定义了两个方法：
+ * proceed()方法用于继续执行拦截器链中的下一个拦截器。具体实现和语义取决于实际的连接点类型。
+ * getThis()方法返回持有当前连接点静态部分的对象，例如方法调用的目标对象。
+ * 总之，这段代码定义了一个通用的运行时连接点接口Joinpoint，它用于表示AOP中的连接点，并提供了方法来继续执行拦截器链和获取连接点的静态部分。
  *
  * @author Rod Johnson
  * @see Interceptor
