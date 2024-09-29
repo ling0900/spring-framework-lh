@@ -26,6 +26,8 @@ import org.springframework.lang.Nullable;
  * class(es) should be imported based on a given selection criteria, usually one or
  * more annotation attributes.
  *
+ * 根据选择条件确定应该导入哪些@Configuration类，并提供了一些可选的接口和构造函数来支持不同的环境和需求。
+ *
  * <p>An {@link ImportSelector} may implement any of the following
  * {@link org.springframework.beans.factory.Aware Aware} interfaces,
  * and their respective methods will be called prior to {@link #selectImports}:
