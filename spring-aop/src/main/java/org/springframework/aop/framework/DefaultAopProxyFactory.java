@@ -61,6 +61,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
 		// 开启Spring，不做任何配置操作，config.isOptimize() || config.isProxyTargetClass() == false；如果目标类没有实现接口，
 		// 或者实现了接口并且是SpringProxy，则整个条件肯定是true。
+		// Spring Boot 2.0 config.isProxyTargetClass()已经默认是 true了
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {

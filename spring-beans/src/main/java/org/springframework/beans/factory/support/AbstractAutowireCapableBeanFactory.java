@@ -415,7 +415,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throws BeansException {
 
 		Object result = existingBean;
-		// 这里面涵盖了AOP的前置处理
+		// 这里面涵盖了AOP的前置处理：AbstractAutoProxyCreator
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
 			Object current = processor.postProcessBeforeInitialization(result, beanName);
 			if (current == null) {
@@ -519,6 +519,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Create bean instance.
+			// 创建bean以及
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Finished creating instance of bean '" + beanName + "'");
@@ -553,6 +554,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object doCreateBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
 			throws BeanCreationException {
 
+		// 1、实例化
+		// 2、可能需要修改merged bean definition，需要进行后置处理工作
+		// 3、判断是否存在循环依赖
+		// 4、进行属性注入
+		// 5、进行后置处理
+
 		// Instantiate the bean.
 		BeanWrapper instanceWrapper = null;
 		if (mbd.isSingleton()) {
@@ -569,6 +576,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Allow post-processors to modify the merged bean definition.
+		// 进行一些后置处理
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
@@ -587,12 +595,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
 				isSingletonCurrentlyInCreation(beanName));
+		// 如果允许提前暴露，则进行操作
 		if (earlySingletonExposure) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
-			logger.info("三级缓存-核心代码！");
+			logger.warn("循环依赖：Eagerly caching bean '" + beanName +
+					"' to allow for resolving potential circular references");
 			// 把 EarlyBeanReference（提前暴露的放到3级缓存）
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
@@ -602,9 +612,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			// 初始化里面有填充属性！
+			// 填充属性！
 			populateBean(beanName, mbd, instanceWrapper);
-			// 初始化方法里面做了：
+			// Apply any BeanPostProcessors for this bean.
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1773,7 +1783,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #applyBeanPostProcessorsAfterInitialization
 	 */
 	protected Object initializeBean(String beanName, Object bean, @Nullable RootBeanDefinition mbd) {
-		// 处理一些aware方法
+		// 调用一些aware方法，在bean后置处理器之前。
 		invokeAwareMethods(beanName, bean);
 
 		Object wrappedBean = bean;
@@ -1791,7 +1801,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					(mbd != null ? mbd.getResourceDescription() : null), beanName, ex.getMessage(), ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
-			// 处理一些bean的后置处理器的后置处理，彻底完成了AOP
+			// 处理一些bean的后置处理器的后置处理，彻底完成了AOP postProcessAfterInitialization，也就是说aop代理发生在bean后置处理器里面。
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

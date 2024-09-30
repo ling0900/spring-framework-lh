@@ -294,7 +294,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			if (StringUtils.hasLength(beanName)) {
 				this.targetSourcedBeans.add(beanName);
 			}
+			//
 			Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+			// 创建动态代理。
 			Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
@@ -634,6 +636,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @throws BeansException in case of errors
 	 * @see #DO_NOT_PROXY
 	 * @see #PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS
+	 *
+	 * <p>这段代码的作用是根据给定的bean的类和名称，确定是否需要对该bean进行代理，并确定要应用的额外拦截器。
+	 * 这个方法提供了灵活的扩展点，允许子类根据自己的需求来实现具体的代理逻辑和拦截器选择。
 	 */
 	@Nullable
 	protected abstract Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String beanName,
