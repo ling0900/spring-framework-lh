@@ -959,6 +959,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 */
 	@Override
 	public void preInstantiateSingletons() throws BeansException {
+		logger.warn(" ->执行preInstantiateSingletons开始");
+
 		if (logger.isTraceEnabled()) {
 			logger.trace("Pre-instantiating singletons in " + this);
 		}
@@ -967,6 +969,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
+		logger.warn(" ->遍历beanNames的list，然后创建bean");
+		// 其实这里用到了DI的思想，这里直接体现的get操作～
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
@@ -995,6 +999,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				smartInitialize.end();
 			}
 		}
+
+		logger.warn(" ->执行preInstantiateSingletons结束");
 	}
 
 

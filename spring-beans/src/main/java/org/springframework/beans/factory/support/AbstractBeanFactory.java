@@ -241,6 +241,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
+		logger.warn(" ->执行doGetBean开始");
+
 		String beanName = transformedBeanName(name);
 		Object beanInstance;
 
@@ -248,6 +250,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// 首先判断是否存在（这里面体现了三级缓存）。
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
+			logger.warn("cached instance of singleton bean: [" + beanName + "] is not null");
+
 			if (logger.isTraceEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
 					logger.trace("Returning eagerly cached instance of singleton bean '" + beanName +
@@ -262,6 +266,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		// 一般都会走到这个逻辑。
 		else {
+			logger.warn("cached instance of singleton bean: [" + beanName + "] is null");
+
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
 			if (isPrototypeCurrentlyInCreation(beanName)) {
@@ -302,6 +308,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
+				logger.warn("进入到了牛逼的 DI 阶段");
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
@@ -312,7 +319,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						}
 						registerDependentBean(dep, beanName);
 						try {
+							logger.warn("【---->创建依赖的bean");
 							getBean(dep);
+							logger.warn("因为存在依赖的其他的bean，所以需要先创建依赖的bean<----】");
 						}
 						catch (NoSuchBeanDefinitionException ex) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
@@ -321,11 +330,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
+				logger.warn("所有的准备工作都做好了，那么就可以正式进入到bean的创建阶段了");
+
+				// 注意这里的bean有三种类型：第一种是单例，第二种是原型，其他。
+
+				// 单例bean的创建
 				// Create bean instance.
 				if (mbd.isSingleton()) {
+					logger.warn("单例bean的创建");
+					// get-then-create
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
-							//################创建bean的核心代码=========
+							logger.warn("【get-then-create");
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {
@@ -339,7 +355,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
+				// 原型bean的创建
 				else if (mbd.isPrototype()) {
+					logger.warn("原型bean的创建");
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
@@ -352,6 +370,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					beanInstance = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
+				// 其他类型的bean创建
 				else {
 					String scopeName = mbd.getScope();
 					if (!StringUtils.hasLength(scopeName)) {
@@ -361,6 +380,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					if (scope == null) {
 						throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
 					}
+					logger.warn("这不是一个单例、原型的bean=============================================================");
+					logger.warn(scopeName + " 类型（scope）bean：" + beanName + "的创建");
 					try {
 						Object scopedInstance = scope.get(beanName, () -> {
 							beforePrototypeCreation(beanName);
@@ -388,6 +409,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				beanCreation.end();
 			}
 		}
+
+		logger.warn(" ->执行doGetBean结束");
 
 		return adaptBeanInstance(name, beanInstance, requiredType);
 	}

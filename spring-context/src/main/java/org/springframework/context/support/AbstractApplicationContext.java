@@ -584,6 +584,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 
+		logger.warn(" ->执行refresh开始");
+
 		synchronized (this.startupShutdownMonitor) {
 			StartupStep contextRefresh = this.applicationStartup.start("spring.context.refresh");
 
@@ -661,8 +663,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				registerListeners();
 
 				// Bean 的初始化，属性填充，Aop
+				logger.warn(" ->调用finishBeanFactoryInitialization开始");
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
+				logger.warn(" ->调用finishBeanFactoryInitialization结束");
+
 
 				// Last step: publish corresponding event.
 				finishRefresh();
@@ -690,6 +695,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				resetCommonCaches();
 				contextRefresh.end();
 			}
+			logger.warn(" ->执行refresh结束");
+
 		}
 	}
 
@@ -989,6 +996,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * initializing all remaining singleton beans.
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
+		logger.warn(" ->执行finishBeanFactoryInitialization开始");
 		// Initialize conversion service for this context.
 		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
 				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
@@ -1016,9 +1024,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.freezeConfiguration();
 
 		// Instantiate all remaining (non-lazy-init) singletons.
-		// 创建bean的流程正式开始。
-
+		// logger.warn("完成context's bean factory的初始化，开始用工厂创建bean（Singletons）");
+		logger.warn(" ->调用preInstantiateSingletons开始");
 		beanFactory.preInstantiateSingletons();
+		logger.warn(" ->调用preInstantiateSingletons结束");
+
+		logger.warn(" ->执行finishBeanFactoryInitialization结束");
 	}
 
 	/**
