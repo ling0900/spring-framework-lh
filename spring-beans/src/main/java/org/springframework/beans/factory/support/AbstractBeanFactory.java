@@ -242,6 +242,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			throws BeansException {
 
 		logger.warn(" ->执行doGetBean开始");
+		logger.warn("测试的log");
 
 		String beanName = transformedBeanName(name);
 		Object beanInstance;
